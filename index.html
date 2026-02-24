@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitIndex — GitHub UX Extension</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --accent: #f03c2e;
+      --accent2: #ff6b5b;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --chrome: #4285f4;
+      --firefox: #ff7139;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(13, 17, 23, 0.8);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo img { width: 28px; height: 28px; border-radius: 4px; }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(240,60,46,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(66,133,244,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(240,60,46,0.12);
+      border: 1px solid rgba(240,60,46,0.3);
+      color: var(--accent2);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-logo {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 1.5rem;
+      filter: drop-shadow(0 0 32px rgba(240,60,46,0.4));
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    .btn-chrome {
+      background: var(--chrome);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(66,133,244,0.35);
+    }
+
+    .btn-firefox {
+      background: var(--firefox);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(255,113,57,0.35);
+    }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+    /* ── STATS ── */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 2.5rem 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-wrap: wrap;
+    }
+
+    .stat { text-align: center; }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── FEATURES ── */
+    .features {
+      padding: 6rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-tag {
+      display: inline-block;
+      background: rgba(240,60,46,0.1);
+      border: 1px solid rgba(240,60,46,0.2);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .section-header p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0.75rem auto 0;
+    }
+
+    .feature-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(240,60,46,0.4);
+      box-shadow: 0 0 0 1px rgba(240,60,46,0.15), 0 8px 40px rgba(0,0,0,0.4);
+    }
+
+    .feature-card.reverse { direction: rtl; }
+    .feature-card.reverse > * { direction: ltr; }
+
+    .feature-info {
+      padding: 2.5rem 2rem 2.5rem 2.5rem;
+    }
+
+    .feature-card.reverse .feature-info {
+      padding: 2.5rem 2.5rem 2.5rem 2rem;
+    }
+
+    .feature-icon {
+      width: 40px; height: 40px;
+      background: rgba(240,60,46,0.12);
+      border: 1px solid rgba(240,60,46,0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .feature-icon svg { width: 20px; height: 20px; }
+
+    .feature-info h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+
+    .feature-info p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 1rem;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .feature-media {
+      background: var(--bg);
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 16/10;
+    }
+
+    .feature-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top left;
+      display: block;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-it-works {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 6rem 2rem;
+    }
+
+    .how-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .step {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      position: relative;
+      transition: border-color 0.25s;
+    }
+
+    .step:hover { border-color: var(--accent); }
+
+    .step-num {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 auto 1rem;
+    }
+
+    .step h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .step p {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    /* ── CTA ── */
+    .cta {
+      padding: 7rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(240,60,46,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .cta h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .cta p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 460px;
+      margin: 0 auto 2.5rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    .footer-inner {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .feature-card { grid-template-columns: 1fr; }
+      .feature-card.reverse { direction: ltr; }
+      .feature-card .feature-media { aspect-ratio: 16/9; order: -1; }
+      .steps { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .hero h1 { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="https://raw.githubusercontent.com/PokeMatPok/gitindex/main/logo.svg" alt="GitIndex logo" width="28" height="28" />
+    GitIndex
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="https://github.com/PokeMatPok/gitindex" target="_blank" rel="noopener">GitHub</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">Open Source · Free · v0.1.1</div>
+
+    <img class="hero-logo"
+         src="https://raw.githubusercontent.com/PokeMatPok/gitindex/main/logo.svg"
+         alt="GitIndex logo" width="88" height="88" />
+
+    <h1>GitHub UX,<br><span>supercharged</span></h1>
+    <p>GitIndex adds quality-of-life features to GitHub — file actions, IDE shortcuts, repo previews, and more.</p>
+
+    <div class="hero-buttons">
+      <!-- Chrome download -->
+      <a class="btn btn-chrome"
+         href="https://github.com/PokeMatPok/gitindex/releases/download/v0.1.1/dist.crx"
+         download>
+        <!-- Chrome icon -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2.4a7.547 7.547 0 015.3 2.18L12 12H6.7A5.3 5.3 0 0112 4.4zm0 15.2a7.6 7.6 0 01-6.54-3.73l2.65-4.59a5.3 5.3 0 009.78 0l2.65 4.59A7.6 7.6 0 0112 19.6zm5.3-7.6a5.3 5.3 0 01-2.65 4.59V12h5.3A5.28 5.28 0 0117.3 12z"/>
+        </svg>
+        Download for Chrome
+      </a>
+
+      <!-- Firefox download -->
+      <a class="btn btn-firefox"
+         href="https://github.com/PokeMatPok/gitindex/releases"
+         target="_blank" rel="noopener">
+        <!-- Firefox icon -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.93 6.34c.18.28.33.58.44.9-.39-.26-.82-.46-1.27-.58a4.33 4.33 0 00-2.55.08c-.8.28-1.47.82-1.9 1.53-.44.7-.6 1.55-.47 2.37.14.82.57 1.57 1.22 2.1.64.54 1.47.83 2.3.81.83-.02 1.64-.36 2.24-.94.17.73.16 1.5-.04 2.22-.2.73-.58 1.4-1.1 1.95-.52.54-1.17.95-1.88 1.17-.71.22-1.46.25-2.18.07-.72-.17-1.38-.54-1.91-1.06-.53-.52-.9-1.18-1.07-1.9-.17-.71-.13-1.46.12-2.15.24-.69.68-1.3 1.27-1.74-.36-.1-.74-.12-1.1-.05-.37.06-.72.21-1.03.42-.03-.15-.04-.3-.04-.45 0-3.31 2.69-6 6-6 .95 0 1.84.22 2.63.62-.23.04-.46.1-.67.2z"/>
+        </svg>
+        Download for Firefox
+      </a>
+
+      <a class="btn btn-ghost"
+         href="https://github.com/PokeMatPok/gitindex"
+         target="_blank" rel="noopener">
+        <!-- GitHub icon -->
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2A10 10 0 002 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/>
+        </svg>
+        View on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-number">4</div>
+    <div class="stat-label">Unique Features</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">1</div>
+    <div class="stat-label">JS File Footprint</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">0</div>
+    <div class="stat-label">External Dependencies</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">MIT</div>
+    <div class="stat-label">License</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header">
+    <div class="section-tag">Features</div>
+    <h2>Everything you wish GitHub had</h2>
+    <p>Small tweaks with a big impact on your daily workflow.</p>
+  </div>
+
+  <div class="feature-grid">
+
+    <!-- Feature 1: File hover actions -->
+    <div class="feature-card">
+      <div class="feature-info">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <h3>File Hover Actions</h3>
+        <p>Instantly copy a file's relative path, full URL, or raw URL — or open it in a new tab — right from the repository file list without any extra clicks.</p>
+        <div class="feature-tags">
+          <span class="tag">Copy path</span>
+          <span class="tag">Copy URL</span>
+          <span class="tag">Copy raw URL</span>
+          <span class="tag">Open in tab</span>
+        </div>
+      </div>
+      <div class="feature-media">
+        <img src="https://raw.githubusercontent.com/PokeMatPok/gitindex/main/demo/feature_preview_action_buttons.gif"
+             alt="File hover action buttons demo" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- Feature 2: Edit with IDE -->
+    <div class="feature-card reverse">
+      <div class="feature-info">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </div>
+        <h3>Edit with IDE</h3>
+        <p>Open any repository in your preferred editor with a single click. Supports GitHub.dev, VS Code, and GitPod — choose the tool that fits your flow.</p>
+        <div class="feature-tags">
+          <span class="tag">GitHub.dev</span>
+          <span class="tag">VS Code</span>
+          <span class="tag">GitPod</span>
+        </div>
+      </div>
+      <div class="feature-media">
+        <img src="https://raw.githubusercontent.com/PokeMatPok/gitindex/main/demo/feature_preview_edit_button.gif"
+             alt="Edit with IDE button demo" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- Feature 3: Repo preview card -->
+    <div class="feature-card">
+      <div class="feature-info">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <h3>Repository Preview Card</h3>
+        <p>Hover over any repository in search results to instantly see stars, forks, open issues, size, license, top language, and more — without ever leaving the page.</p>
+        <div class="feature-tags">
+          <span class="tag">Stars &amp; Forks</span>
+          <span class="tag">Open Issues</span>
+          <span class="tag">Language</span>
+          <span class="tag">License</span>
+        </div>
+      </div>
+      <div class="feature-media">
+        <img src="https://raw.githubusercontent.com/PokeMatPok/gitindex/main/demo/feature_preview_search_hover.gif"
+             alt="Repository preview hover card demo" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- Feature 4: Language donut chart -->
+    <div class="feature-card reverse">
+      <div class="feature-info">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 010 20"/><path d="M2 12h10"/>
+          </svg>
+        </div>
+        <h3>Language Donut Chart</h3>
+        <p>GitHub's language bar gets a visual upgrade — a beautiful donut chart replaces the thin progress bar in the repository sidebar, making language breakdowns much easier to read at a glance.</p>
+        <div class="feature-tags">
+          <span class="tag">Visual upgrade</span>
+          <span class="tag">Sidebar</span>
+          <span class="tag">Language breakdown</span>
+        </div>
+      </div>
+      <div class="feature-media">
+        <img src="https://raw.githubusercontent.com/PokeMatPok/gitindex/main/demo/feature_preview_pie_chart.gif"
+             alt="Language donut chart demo" loading="lazy" />
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="install">
+  <div class="how-inner">
+    <div class="section-header">
+      <div class="section-tag">Install</div>
+      <h2>Up and running in 60 seconds</h2>
+      <p>No account needed. No configuration required. Just install and enjoy.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Download</h4>
+        <p>Grab the latest release from the <a href="https://github.com/PokeMatPok/gitindex/releases" target="_blank" rel="noopener" style="color:var(--accent2)">GitHub Releases</a> page.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Enable Developer Mode</h4>
+        <p>Open <code>chrome://extensions</code> and toggle Developer mode on (Chrome only).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Drag &amp; Drop</h4>
+        <p>Drag the downloaded file onto the extensions page. GitIndex activates immediately.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2>Ready to level up your GitHub?</h2>
+  <p>Free, open source, and built to stay lightweight. One file. No tracking.</p>
+  <div class="hero-buttons">
+    <a class="btn btn-chrome"
+       href="https://github.com/PokeMatPok/gitindex/releases/download/v0.1.1/dist.crx"
+       download>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2.4a7.547 7.547 0 015.3 2.18L12 12H6.7A5.3 5.3 0 0112 4.4zm0 15.2a7.6 7.6 0 01-6.54-3.73l2.65-4.59a5.3 5.3 0 009.78 0l2.65 4.59A7.6 7.6 0 0112 19.6zm5.3-7.6a5.3 5.3 0 01-2.65 4.59V12h5.3A5.28 5.28 0 0117.3 12z"/>
+      </svg>
+      Download for Chrome
+    </a>
+    <a class="btn btn-firefox"
+       href="https://github.com/PokeMatPok/gitindex/releases"
+       target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.93 6.34c.18.28.33.58.44.9-.39-.26-.82-.46-1.27-.58a4.33 4.33 0 00-2.55.08c-.8.28-1.47.82-1.9 1.53-.44.7-.6 1.55-.47 2.37.14.82.57 1.57 1.22 2.1.64.54 1.47.83 2.3.81.83-.02 1.64-.36 2.24-.94.17.73.16 1.5-.04 2.22-.2.73-.58 1.4-1.1 1.95-.52.54-1.17.95-1.88 1.17-.71.22-1.46.25-2.18.07-.72-.17-1.38-.54-1.91-1.06-.53-.52-.9-1.18-1.07-1.9-.17-.71-.13-1.46.12-2.15.24-.69.68-1.3 1.27-1.74-.36-.1-.74-.12-1.1-.05-.37.06-.72.21-1.03.42-.03-.15-.04-.3-.04-.45 0-3.31 2.69-6 6-6 .95 0 1.84.22 2.63.62-.23.04-.46.1-.67.2z"/>
+      </svg>
+      Download for Firefox
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <p>
+      Made with ♥ by <a href="https://github.com/PokeMatPok" target="_blank" rel="noopener">PokeMatPok</a>
+      · <a href="https://github.com/PokeMatPok/gitindex" target="_blank" rel="noopener">View source on GitHub</a>
+      · <a href="https://github.com/PokeMatPok/gitindex/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+    </p>
+    <p style="color: #484f58; font-size: 0.8rem;">GitIndex is not affiliated with GitHub, Inc.</p>
+  </div>
+</footer>
+
+</body>
+</html>

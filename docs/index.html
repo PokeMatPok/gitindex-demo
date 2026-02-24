@@ -507,6 +507,77 @@
       font-size: 0.8rem;
     }
 
+    /* ── UNDER THE HOOD ── */
+    .under-the-hood {
+      padding: 6rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hood-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .hood-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.75rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .hood-card:hover {
+      border-color: var(--accent);
+    }
+
+    .hood-card-icon {
+      width: 40px; height: 40px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .hood-card-icon svg { width: 22px; height: 22px; }
+
+    .hood-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .hood-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .hood-highlight {
+      margin-top: 2.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 1.75rem 2rem;
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+
+    .hood-highlight strong { color: var(--accent2); }
+
+    @media (max-width: 768px) {
+      .hood-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .feature-card { grid-template-columns: 1fr; }
@@ -528,6 +599,7 @@
   </a>
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
+    <li><a href="#under-the-hood">Under the Hood</a></li>
     <li><a href="#install">Install</a></li>
     <li><a href="https://github.com/PokeMatPok/gitindex" target="_blank" rel="noopener">GitHub</a></li>
   </ul>
@@ -713,6 +785,51 @@
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- UNDER THE HOOD -->
+<section class="under-the-hood" id="under-the-hood">
+  <div class="section-header">
+    <div class="section-tag">Architecture</div>
+    <h2>Under the Hood</h2>
+    <p>A thoughtfully engineered extension — built lean, built smart, built to last.</p>
+  </div>
+
+  <div class="hood-grid">
+    <div class="hood-card">
+      <div class="hood-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        </svg>
+      </div>
+      <h3>TypeScript + esbuild</h3>
+      <p>Every line of GitIndex is authored in TypeScript — giving full type safety and maintainability — then compiled by esbuild into a single, lightning-fast content script with zero bloat.</p>
+    </div>
+
+    <div class="hood-card">
+      <div class="hood-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h3>SPA-Aware Navigation</h3>
+      <p>GitHub is a single-page application — it never fully reloads between pages. GitIndex intercepts every client-side navigation and seamlessly activates the right features for each view without missing a beat.</p>
+    </div>
+
+    <div class="hood-card">
+      <div class="hood-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+      </div>
+      <h3>Modular by Design</h3>
+      <p>Built on a self-written modular framework, each feature lives in its own isolated module and submodule. Adding or removing capabilities is surgical — no spaghetti, no side effects, and lightning-fast iteration.</p>
+    </div>
+  </div>
+
+  <div class="hood-highlight">
+    <strong>Why a single content script?</strong> GitHub's SPA architecture means traditional multi-file approaches break down fast — pages change without a reload, and injecting scripts on every navigation is wasteful and fragile. By compiling everything into one optimised bundle, GitIndex loads once, listens for navigation events, and intelligently mounts only the modules relevant to the current page. The result: <strong>instant activation, zero redundancy, and a codebase that's genuinely easy to extend.</strong>
   </div>
 </section>
 

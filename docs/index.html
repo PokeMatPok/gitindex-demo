@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GitIndex — GitHub UX Extension</title>
+  <title>GitIndex — GitHub UX, the way it should feel</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -476,6 +476,66 @@
       gap: 0.75rem;
     }
 
+    /* ── ORIGIN STORY ── */
+    .origin-story {
+      padding: 4rem 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .origin-inner {
+      max-width: 680px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      position: relative;
+    }
+
+    .origin-inner::before {
+      content: '\201C';
+      position: absolute;
+      top: -0.5rem;
+      left: 1.5rem;
+      font-size: 5rem;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.25;
+      font-family: Georgia, serif;
+    }
+
+    .origin-inner blockquote {
+      font-size: 1.1rem;
+      line-height: 1.75;
+      color: var(--text);
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .origin-inner cite {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-style: normal;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .origin-inner cite::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+
+    footer .footer-note {
+      color: #484f58;
+      font-size: 0.8rem;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .feature-card { grid-template-columns: 1fr; }
@@ -506,14 +566,14 @@
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-inner">
-    <div class="hero-badge">Open Source · Free · v0.1.1</div>
+    <div class="hero-badge">✨ Open Source · Free Forever · v0.1.1</div>
 
     <img class="hero-logo"
          src="https://raw.githubusercontent.com/PokeMatPok/gitindex/main/logo.svg"
          alt="GitIndex logo" width="88" height="88" />
 
-    <h1>GitHub UX,<br><span>supercharged</span></h1>
-    <p>GitIndex adds quality-of-life features to GitHub — file actions, IDE shortcuts, repo previews, and more.</p>
+    <h1>GitHub, but the way<br><span>it should feel</span></h1>
+    <p>I kept copy-pasting file paths and squinting at language bars. So I built the little things GitHub keeps forgetting — and figured you might want them too.</p>
 
     <div class="hero-buttons">
       <!-- Chrome download -->
@@ -555,28 +615,38 @@
 <div class="stats">
   <div class="stat">
     <div class="stat-number">4</div>
-    <div class="stat-label">Unique Features</div>
+    <div class="stat-label">features (and counting 🚀)</div>
   </div>
   <div class="stat">
     <div class="stat-number">1</div>
-    <div class="stat-label">JS File Footprint</div>
+    <div class="stat-label">JS file — that's the whole extension</div>
   </div>
   <div class="stat">
     <div class="stat-number">0</div>
-    <div class="stat-label">External Dependencies</div>
+    <div class="stat-label">dependencies, for real</div>
   </div>
   <div class="stat">
     <div class="stat-number">MIT</div>
-    <div class="stat-label">License</div>
+    <div class="stat-label">license — fork away 🤝</div>
   </div>
 </div>
 
-<!-- FEATURES -->
+<!-- ORIGIN STORY -->
+<div class="origin-story">
+  <div class="origin-inner">
+    <blockquote>
+      I got tired of opening a file just to copy its path, and tired of that thin language bar that tells you almost nothing.
+      GitIndex started as a weekend hack. Then I kept adding the small stuff that made my GitHub days feel less annoying.
+      It's not a big product — it's just a developer's wish list, turned into a browser extension. I hope it helps.
+    </blockquote>
+    <cite>PokeMatPok, creator &amp; maintainer</cite>
+  </div>
+</div>
 <section class="features" id="features">
   <div class="section-header">
-    <div class="section-tag">Features</div>
-    <h2>Everything you wish GitHub had</h2>
-    <p>Small tweaks with a big impact on your daily workflow.</p>
+    <div class="section-tag">What it does</div>
+    <h2>Little things. Big difference.</h2>
+    <p>The best tools are the ones you forget you're using — they just make everything feel a bit less annoying.</p>
   </div>
 
   <div class="feature-grid">
@@ -680,8 +750,8 @@
   <div class="how-inner">
     <div class="section-header">
       <div class="section-tag">Install</div>
-      <h2>Up and running in 60 seconds</h2>
-      <p>No account needed. No configuration required. Just install and enjoy.</p>
+      <h2>You'll be up in under a minute</h2>
+      <p>No account needed. No config. No nonsense. Just install and enjoy.</p>
     </div>
 
     <div class="steps">
@@ -706,8 +776,8 @@
 
 <!-- CTA -->
 <section class="cta">
-  <h2>Ready to level up your GitHub?</h2>
-  <p>Free, open source, and built to stay lightweight. One file. No tracking.</p>
+  <h2>Give it a try — it's free &amp; tiny 🎉</h2>
+  <p>No account. No setup. No nonsense. Just a dev who wanted better tools, and thought you might too.</p>
   <div class="hero-buttons">
     <a class="btn btn-chrome"
        href="https://github.com/PokeMatPok/gitindex/releases/download/v0.1.1/dist.crx"
@@ -736,7 +806,8 @@
       · <a href="https://github.com/PokeMatPok/gitindex" target="_blank" rel="noopener">View source on GitHub</a>
       · <a href="https://github.com/PokeMatPok/gitindex/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
     </p>
-    <p style="color: #484f58; font-size: 0.8rem;">GitIndex is not affiliated with GitHub, Inc.</p>
+    <p class="footer-note">GitIndex is not affiliated with GitHub, Inc.</p>
+    <p class="footer-note">P.S. — spot a bug or want a feature? <a href="https://github.com/PokeMatPok/gitindex/issues" target="_blank" rel="noopener" style="color: var(--muted);">Open an issue</a> — I read every one. 🙂</p>
   </div>
 </footer>
 
